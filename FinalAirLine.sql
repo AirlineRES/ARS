@@ -11,6 +11,8 @@ INSERT INTO [airline].[Flights] VALUES
 
 -- Inserting Of Flight Details using Procedure
 
+Drop Procedure [airline].[USP_FLIGHTINSERT];
+
  CREATE PROC [airline].[USP_FLIGHTINSERT]
 (
  @flightId varchar(10) ,
@@ -19,8 +21,7 @@ INSERT INTO [airline].[Flights] VALUES
  @destination varchar(10),
  @deptTime  varchar(10),
  @arrivalTime varchar(10),
- @noOfSeats int,
- @fare decimal)
+ @noOfSeats int)
 
  As
 
@@ -32,8 +33,8 @@ INSERT INTO [airline].[Flights] VALUES
 							Destination, 
 							DeptTime, 
 							ArrivalTime,
-							NoOfSeats, 
-							Fare) 
+							NoOfSeats 
+							) 
 
 			       VALUES (@flightId,
 							@launchDate,
@@ -41,13 +42,13 @@ INSERT INTO [airline].[Flights] VALUES
 							@destination,
 							@deptTime,
 							@arrivalTime,
-							@noOfSeats,
-							@fare);
+							@noOfSeats
+							);
 
 	END
 
 
-	EXEC [airline].[USP_FLIGHTINSERT] '101' , '2020-05-21' , ' Delhi ' , ' Pune ' , ' 12:00 PM' , ' 4:00 PM ' , 200 , 9000 ;  
+	EXEC [airline].[USP_FLIGHTINSERT] '115' , '2020-09-27' , 'Patna' , 'Delhi' , '12:40 PM' , ' 3:00 PM ' , 220  ;  
 
 
 	-- Deleting a Flight Detail using Stored Procedure
@@ -112,12 +113,14 @@ INSERT INTO [airline].[Flights] VALUES
      As
 
      BEGIN
-		SELECT FlightID, Origin,Destination, DeptTime, ArrivalTime,NoOfSeats, Fare FROM [airline].[Flights] WHERE Origin = @origin AND Destination = @destination;
+		SELECT FlightID, Origin,Destination, DeptTime, ArrivalTime,NoOfSeats FROM [airline].[Flights] WHERE Origin = @origin AND Destination = @destination;
       END
 
-    EXEC [airline].[USP_VIEWFLIGHTS] 'Mumbai' , 'Dehradun' ;  
+    EXEC [airline].[USP_VIEWFLIGHTS] ' Mumbai ' , ' Dehradun ' ;  
 
 	drop procedure [airline].[USP_VIEWFLIGHTS]
+
+
 
 
 		-------------- Procedures for Users Table -----------
@@ -197,8 +200,153 @@ CREATE PROC [airline].[USP_USERINSERT]
 
 
    SELECT FlightID, Origin,Destination, DeptTime, ArrivalTime,NoOfSeats, Fare FROM [airline].[Flights] WHERE Destination = 'BANGALORE'
+	SELECT * FROM [airline].[Flights];
+
+	----------Strored procedure for inserting into Reservation-------------------
+	drop procedure [airline].[USP_RESERVATIONINSERT]
+
+	CREATE PROC [airline].[USP_RESERVATIONINSERT]
+(
+  @flightID varchar(10), 
+  @dateofBooking date, 
+  @journeyDate date, 
+  @passengerName varchar(50),
+  @age int,
+  @gender varchar(10),
+  @contacNo bigint,
+  @email varchar(70),
+  @class varchar(20),
+  @noofTickets int, 
+  @totalFare decimal,
+  @reservationStatus varchar(20))
+
+ As
+
+ BEGIN
+		INSERT INTO [airline].Reservation
+							( FlightID, 
+							  DateofBooking, 
+							  JourneyDate, 
+							  PassengerName,
+							  Age,
+							  Gender,
+							  ContacNo,
+							  Email,
+							  Class,
+							  NoofTickets, 
+							  TotalFare,
+							  ReservationStatus) 
+
+			       VALUES (   @flightID, 
+							  @dateofBooking, 
+							  @journeyDate, 
+							  @passengerName,
+							  @age,
+							  @gender,
+							  @contacNo,
+							  @email,
+							  @class,
+							  @noofTickets, 
+							  @totalFare,
+							  @reservationStatus);
+
+	END
+
+	 EXEC [airline].[USP_RESERVATIONINSERT] 110,'05/20/2017','06/24/2017', 'Bill Gates', 40, 'Male', 8569325478,'bill@hotmail.com','Business Class',1,15000,'Booked'
+	 select * from [airline].Reservation
+
+	 ---------------Strored procedure for updating Reservation table------------------------
+	 CREATE PROC [airline].[USP_RESERVATIONUPDATE]
+
+   (
+   @ticketNo int,
+  @flightID varchar(10), 
+  @dateofBooking date, 
+  @journeyDate date, 
+  @passengerName varchar(50),
+  @age int,
+  @gender varchar(10),
+  @contacNo bigint,
+  @email varchar(70),
+  @class varchar(20),
+  @noofTickets int, 
+  @totalFare decimal,
+  @reservationStatus varchar(20))
+    
+	 As
+
+        BEGIN
+		 UPDATE[airline].[Reservation] 
+		
+		  SET 
+		    FlightID =   @flightID,
+		 	DateofBooking =   @dateofBooking,
+			JourneyDate =  @journeyDate,
+			PassengerName =   @passengerName ,
+            Age =  @age,
+		    Gender =  @gender,
+			ContacNo = @contacNo,
+			Email = @email,
+			Class	 =  @class,
+			NoofTickets	 =  @noofTickets,
+			TotalFare	 =  @totalFare,
+			ReservationStatus = @reservationStatus
+							
+			WHERE TicketNo = @ticketNo;
+      END
+EXEC [airline].[USP_RESERVATIONUPDATE] 3, 110,'05/25/2017','06/30/2017', 'Raju Gates', 20, 'Male', 8569325478,'raju@hotmail.com','Economy Class',1,5000,'Booked' 
+
+-- Deleting a Reservation Detail using Stored Procedure
+
+	 CREATE PROC [airline].[USP_RESERVATIONDELETE]
+    
+     @ticketNo int 
+
+     As
+
+     BEGIN
+		DELETE FROM [airline].[Reservation] WHERE TicketNo = @ticketNo;
+      END
+
+     	EXEC [airline].[USP_RESERVATIONDELETE] 5 ;  
+
+	------------- Procedure to view the Tickets Details ---------
+
+		
+     CREATE PROC [airline].[USP_VIEWRESERVATION]
+    
+     @ticketNo int
+
+     As
+
+     BEGIN
+		SELECT * FROM [airline].[Reservation] WHERE TicketNo = @ticketNo
+      END
+
+EXEC [airline].[USP_VIEWRESERVATION] 3
+	   select * from [airline].Reservation
+
+	   ---------------Table creation for Class---------------------
+	   Create table airline.FlightClass(
+	   FlightID varchar(10),
+	   Class varchar(20),
+	   Fare decimal,
+	    CONSTRAINT FK_FlightClass FOREIGN KEY (FlightID)
+    REFERENCES airline.Flights(FlightID)
+	);
+	select * from airline.Flights
+	select * from airline.FlightClass
+
+	Insert into airline.FlightClass values(109,'Business Class',15000)
+	Insert into airline.FlightClass values(109,'First Class',10000)
+	Insert into airline.FlightClass values(109,'Economy Class',15000)
+
+	Insert into airline.FlightClass values(110,'Business Class',15000)
+	Insert into airline.FlightClass values(110,'First Class',10000)
+	Insert into airline.FlightClass values(110,'Economy Class',15000)
+
+	Insert into airline.FlightClass values(101,'Business Class',15000)
+	Insert into airline.FlightClass values(101,'First Class',10000)
+	Insert into airline.FlightClass values(101,'Economy Class',15000)
 
 
-
-
-		SELECT * FROM [airline].[Flights];
